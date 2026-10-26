@@ -17,19 +17,21 @@ import book from '../../assets/images/png/book.png';
 import Coursesfilled from '../../assets/images/png/Coursesfilled.png';
 import Coursesunfilled from '../../assets/images/png/Coursesunfilled.png';
 import { CopilotStep, useCopilot, walkthroughable } from 'react-native-copilot';
-import { 
-  getDataFromStorage, 
-  getActiveCohortData, 
-  getActiveCohortIds,
-  setDataInStorage 
-} from '../../utils/JsHelper/Helper';
-import { getCohort } from '../../utils/API/AuthService';
+import { getDataFromStorage, setDataInStorage } from '../../utils/JsHelper/Helper';
+import {
+  findProgramCohort,
+  getProgramAcademicYearIds,
+  isActiveBatch,
+} from '../../utils/API/AuthService';
 import {
   useTabBarStyle,
   useTabLabelStyle,
 } from '../../utils/Helper/TabScreenHelper';
 
 const Tab = createBottomTabNavigator();
+// While the current program has no batch, how often (at most) the tab screen
+// re-checks all of its academic years for a newly assigned one.
+const FULL_SCAN_INTERVAL_MS = 30 * 1000;
 const WalkthroughableView = walkthroughable(View);
 
 const SCPUserTabScreen = () => {
@@ -38,6 +40,8 @@ const SCPUserTabScreen = () => {
   const navigation = useNavigation();
   const isFocused = useIsFocused();
   const appState = useRef(AppState.currentState);
+  const refreshInFlightRef = useRef(false);
+  const lastFullScanRef = useRef(0);
   const [CopilotStopped, setCopilotStopped] = useState(false);
   const [showCoursesTab, setShowCoursesTab] = useState(false);
   const [showMyClassTab, setShowMyClassTab] = useState(false);
@@ -53,6 +57,24 @@ const SCPUserTabScreen = () => {
 
   // Function to update cohort data from API and refresh tabs
   const refreshCohortData = useCallback(async () => {
+    // The 3s poll below can fire while a slower multi-year lookup is running.
+    if (refreshInFlightRef.current) return;
+    refreshInFlightRef.current = true;
+
+    const applyTabsFrom = (data) => {
+      const eligible = isActiveBatch(data);
+      setShowMyClassTab(eligible);
+      setShowHomeTab(eligible);
+    };
+    const applyTabsFromStorage = async () => {
+      try {
+        const cohortparse = await getDataFromStorage('cohortData');
+        applyTabsFrom(cohortparse ? JSON.parse(cohortparse) : null);
+      } catch (storageError) {
+        applyTabsFrom(null);
+      }
+    };
+
     try {
       // Get required data from storage
       const tenantData = JSON.parse(await getDataFromStorage('tenantData') || '[]');
@@ -62,91 +84,67 @@ const SCPUserTabScreen = () => {
 
       if (!tenantid || !user_id || !academicYearId) {
         // If required data is missing, try to read from existing storage
-        const cohortparse = await getDataFromStorage('cohortData');
-        if (!cohortparse) {
-          setShowHomeTab(false);
-          setShowMyClassTab(false);
-          return;
-        }
-        const data = JSON.parse(cohortparse);
-        const eligible =
-          data?.type === 'BATCH' &&
-          data?.cohortMemberStatus === 'active' &&
-          data?.cohortStatus === 'active';
-        setShowMyClassTab(!!eligible);
-        setShowHomeTab(!!eligible);
+        await applyTabsFromStorage();
         return;
       }
 
-      // Fetch fresh cohort data from API
-      const cohort = await getCohort({
+      // Every tick: only the academic year already resolved for this program.
+      let result = await findProgramCohort({
         user_id,
         tenantid,
-        academicYearId,
+        academicYearIds: [academicYearId],
       });
 
-      if (cohort?.params?.status !== 'failed' && cohort) {
-        const getActiveCohort = await getActiveCohortData(cohort);
-        const getActiveCohortId = await getActiveCohortIds(cohort);
-        
-        // Update cohortData in storage
-        await setDataInStorage(
-          'cohortData',
-          JSON.stringify(getActiveCohort?.[0]) || ''
-        );
-        
-        // Update cohortId in storage
-        const cohort_id = getActiveCohortId?.[0];
-        await setDataInStorage(
-          'cohortId',
-          cohort_id || '00000000-0000-0000-0000-000000000000'
-        );
-
-        // Update tab visibility based on cohort data
-        const cohortData = getActiveCohort?.[0];
-        const eligible =
-          cohortData?.type === 'BATCH' &&
-          cohortData?.cohortMemberStatus === 'active' &&
-          cohortData?.cohortStatus === 'active';
-        setShowMyClassTab(!!eligible);
-        setShowHomeTab(!!eligible);
-      } else {
-        // If API call failed, read from existing storage
-        const cohortparse = await getDataFromStorage('cohortData');
-        if (!cohortparse) {
-          setShowHomeTab(false);
-          setShowMyClassTab(false);
-          return;
+      // A batch assigned while logged in can sit in another academic year of
+      // this program (login checks them all, this poll only checks one), so
+      // while there is no batch, periodically check every year.
+      const now = Date.now();
+      if (
+        !isActiveBatch(result.cohort) &&
+        now - lastFullScanRef.current > FULL_SCAN_INTERVAL_MS
+      ) {
+        lastFullScanRef.current = now;
+        const fullResult = await findProgramCohort({
+          user_id,
+          tenantid,
+          academicYearIds: await getProgramAcademicYearIds({
+            tenantid,
+            preferredAcademicYearId: academicYearId,
+          }),
+        });
+        if (isActiveBatch(fullResult.cohort) || result.failed) {
+          result = fullResult;
         }
-        const data = JSON.parse(cohortparse);
-        const eligible =
-          data?.type === 'BATCH' &&
-          data?.cohortMemberStatus === 'active' &&
-          data?.cohortStatus === 'active';
-        setShowMyClassTab(!!eligible);
-        setShowHomeTab(!!eligible);
       }
+
+      if (result.failed) {
+        // If API call failed, read from existing storage
+        await applyTabsFromStorage();
+        return;
+      }
+
+      // tenantid is the current program, so this only ever replaces the
+      // current program's cohort, never another program's.
+      await setDataInStorage(
+        'cohortData',
+        result.cohort ? JSON.stringify(result.cohort) : ''
+      );
+      await setDataInStorage(
+        'cohortId',
+        result.cohort?.cohortId || '00000000-0000-0000-0000-000000000000'
+      );
+      if (result.academicYearId && result.academicYearId !== academicYearId) {
+        await setDataInStorage('academicYearId', result.academicYearId);
+      }
+
+      // Update tab visibility based on cohort data
+      applyTabsFrom(result.cohort);
     } catch (error) {
       console.error('Error refreshing cohort data:', error);
       // Fallback to reading from storage on error
-      try {
-        const cohortparse = await getDataFromStorage('cohortData');
-        if (!cohortparse) {
-          setShowHomeTab(false);
-          setShowMyClassTab(false);
-          return;
-        }
-        const data = JSON.parse(cohortparse);
-        const eligible =
-          data?.type === 'BATCH' &&
-          data?.cohortMemberStatus === 'active' &&
-          data?.cohortStatus === 'active';
-        setShowMyClassTab(!!eligible);
-        setShowHomeTab(!!eligible);
-      } catch (storageError) {
-        setShowHomeTab(false);
-        setShowMyClassTab(false);
-      }
+      await applyTabsFromStorage();
+    } finally {
+      refreshInFlightRef.current = false;
     }
   }, []);
 
@@ -179,7 +177,9 @@ const SCPUserTabScreen = () => {
         appState.current.match(/inactive|background/) &&
         nextAppState === 'active'
       ) {
-        // App has come to the foreground, refresh cohort data
+        // App has come to the foreground, refresh cohort data. Skip the
+        // full-scan throttle so a batch assigned meanwhile shows immediately.
+        lastFullScanRef.current = 0;
         refreshCohortData();
       }
       appState.current = nextAppState;

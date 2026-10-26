@@ -24,8 +24,6 @@ import FastImage from '@changwoolab/react-native-fast-image';
 
 import {
   deleteSavedItem,
-  getActiveCohortData,
-  getActiveCohortIds,
   getBatchAssignmentCacheKey,
   getDataFromStorage,
   logEventFunction,
@@ -39,7 +37,7 @@ import {
 import { refreshSession } from '../../utils/API/RestClient';
 
 import {
-  getCohort,
+  findProgramCohort,
   getProfileDetails,
   getProgramDetails,
 } from '../../utils/API/AuthService';
@@ -93,24 +91,18 @@ const LanguageScreen = () => {
     const tenantid = tenantData?.[0]?.tenantId;
     const user_id = await getDataFromStorage('userId');
     const academicYearId = await getDataFromStorage('academicYearId');
-    const cohort = await getCohort({
+    const { cohort, failed } = await findProgramCohort({
       user_id,
       tenantid,
-      academicYearId,
+      academicYearIds: [academicYearId].filter(Boolean),
     });
+    // Offline launch: keep the cohort already stored for this program.
+    if (failed) return;
 
-    const getActiveCohort = await getActiveCohortData(cohort);
-    const getActiveCohortId = await getActiveCohortIds(cohort);
-
-    const cohort_id = getActiveCohortId?.[0];
-
-    await setDataInStorage(
-      'cohortData',
-      JSON.stringify(getActiveCohort?.[0]) || ''
-    );
+    await setDataInStorage('cohortData', cohort ? JSON.stringify(cohort) : '');
     await setDataInStorage(
       'cohortId',
-      cohort_id || '00000000-0000-0000-0000-000000000000'
+      cohort?.cohortId || '00000000-0000-0000-0000-000000000000'
     );
   };
 

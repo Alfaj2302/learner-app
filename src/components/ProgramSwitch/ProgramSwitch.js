@@ -15,7 +15,7 @@ import { useNavigation, useFocusEffect, CommonActions } from '@react-navigation/
 import { useTranslation } from '../../context/LanguageContext';
 
 import {
-  getCohort,
+  loadProgramCohort,
   getProfileDetails,
   getProgramDetails,
   getUserDetails,
@@ -25,8 +25,6 @@ import {
 } from '../../utils/API/AuthService';
 import {
   deleteSavedItem,
-  getActiveCohortData,
-  getActiveCohortIds,
   getBatchAssignmentCacheKey,
   getDataFromStorage,
   getDeviceId,
@@ -192,29 +190,14 @@ const ProgramSwitch = ({ userId, onSuccess, onError, onClose }) => {
 
       const academicyear = await setAcademicYear({ tenantid: tenantId });
       const academicYearId = academicyear?.[0]?.id;
-      await setDataInStorage('academicYearId', academicYearId || '');
       await setDataInStorage('userTenantid', tenantId || '');
 
-      const cohort = await getCohort({
+      const cohort_id = await loadProgramCohort({
         user_id,
         tenantid: tenantId,
-        academicYearId,
+        activeAcademicYearId: academicYearId,
       });
-      console.log('#### loginmultirole cohort', cohort);
-
-      // Drop the previous program's batch first: if this program has no active
-      // cohort below, cohortData must stay empty rather than leak across programs.
-      await setDataInStorage('cohortData', '');
-      let cohort_id;
-      if (cohort.params?.status !== 'failed') {
-        const getActiveCohort = await getActiveCohortData(cohort);
-        const getActiveCohortId = await getActiveCohortIds(cohort);
-        await setDataInStorage(
-          'cohortData',
-          JSON.stringify(getActiveCohort?.[0]) || ''
-        );
-        cohort_id = getActiveCohortId?.[0];
-      }
+      console.log('#### loginmultirole cohort_id', cohort_id);
 
       const profileData = await getProfileDetails({
         userId: user_id,

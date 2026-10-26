@@ -16,7 +16,7 @@ import RadioButton from '@components/CustomRadioCard/RadioButton';
 import CustomCards from '@components/CustomCard/CustomCard';
 import {
   getAccessToken,
-  getCohort,
+  loadProgramCohort,
   getGeoLocation,
   getProfileDetails,
   getProgramDetails,
@@ -33,8 +33,6 @@ import HeaderComponent from '@components/CustomHeaderComponent/customheadercompo
 import DropdownSelect from '@components/DropdownSelect/DropdownSelect';
 import {
   calculateAge,
-  getActiveCohortData,
-  getActiveCohortIds,
   getDataFromStorage,
   getDeviceId,
   getuserDetails,
@@ -179,22 +177,13 @@ const RegistrationForm = ({ fields }) => {
 
     const academicyear = await setAcademicYear({ tenantid });
     const academicYearId = academicyear?.[0]?.id;
-    await setDataInStorage('academicYearId', academicYearId || '');
     await setDataInStorage('userTenantid', tenantid || '');
-    const cohort = await getCohort({ user_id, tenantid, academicYearId });
-    // Drop the previous program's batch first: if this program has no active
-    // cohort below, cohortData must stay empty rather than leak across programs.
-    await setDataInStorage('cohortData', '');
-    let cohort_id;
-    if (cohort.params?.status !== 'failed') {
-      const getActiveCohort = await getActiveCohortData(cohort);
-      const getActiveCohortId = await getActiveCohortIds(cohort);
-      await setDataInStorage(
-        'cohortData',
-        JSON.stringify(getActiveCohort?.[0]) || ''
-      );
-      cohort_id = getActiveCohortId?.[0];
-    }
+
+    const cohort_id = await loadProgramCohort({
+      user_id,
+      tenantid,
+      activeAcademicYearId: academicYearId,
+    });
 
     const profileData = await getProfileDetails({
       userId: user_id,

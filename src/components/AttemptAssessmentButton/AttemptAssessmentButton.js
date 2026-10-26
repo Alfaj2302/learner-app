@@ -16,7 +16,6 @@ import {
 import { Button, useTheme } from '@ui-kitten/components';
 import { useTranslation } from '../../context/LanguageContext';
 import {
-  getBatchAssignmentCacheKey,
   getDataFromStorage,
   getDefaultProgramTags,
   setDataInStorage,
@@ -31,16 +30,11 @@ import globalStyles from '../../utils/Helper/Style';
 
 // Mirrors the batch eligibility check used by SCPUserTabScreen to show the
 // Home/My Class tabs, so the button disappears as soon as those tabs appear.
-// Keyed by the currently selected program/tenant (see getBatchAssignmentCacheKey)
-// so a dual-enrolled user's batch status in one program never leaks into the other.
+// Reads only `cohortData`, which is resolved per program across all of its
+// academic years. The web portal's `cohortAssignedToAnyAcademicYearId` flag is
+// deliberately not used: the web never clears it and its localStorage is shared
+// across programs, so an SCP batch would mark Pathways as assigned too.
 const hasActiveBatchAssigned = async () => {
-  const cohortAssignedId = await getDataFromStorage(
-    await getBatchAssignmentCacheKey()
-  );
-  if (cohortAssignedId) {
-    return true;
-  }
-
   try {
     const cohortparse = await getDataFromStorage('cohortData');
     if (!cohortparse) {
