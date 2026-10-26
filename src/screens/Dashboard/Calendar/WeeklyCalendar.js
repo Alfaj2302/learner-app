@@ -89,7 +89,9 @@ const WeeklyCalendar = ({ setDate, postdays, allEventData }) => {
         new Set(
           allEventData.map((item) => {
             const eventDate = new Date(item?.startDateTime);
-            return eventDate.getUTCDate(); // Get the day of the month
+            // Local calendar day (e.g. "Tue Oct 27 2026"). getUTCDate() put
+            // sessions starting before 05:30 IST on the previous day.
+            return eventDate.toDateString();
           })
         )
       );
@@ -127,7 +129,7 @@ const WeeklyCalendar = ({ setDate, postdays, allEventData }) => {
                 {item.date}
               </GlobalText>
 
-              {eventDate?.includes(item.date) && (
+              {eventDate?.includes(item.exactDate.toDateString()) && (
                 <Image source={eventcal} style={{ width: 20, height: 20 }} />
               )}
             </View>
