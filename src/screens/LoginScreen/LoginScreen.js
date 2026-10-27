@@ -445,15 +445,18 @@ import SafeAreaWrapper from '../../components/SafeAreaWrapper/SafeAreaWrapper';
 import BackHeader from '../../components/Layout/BackHeader';
 import { useNavigation, useIsFocused } from '@react-navigation/native';
 import {
-  loadProgramCohort,
+  getCohort,
   getProfileDetails,
   getProgramDetails,
   getUserDetails,
   setAcademicYear,
   notificationSubscribe,
   telemetryTrackingData,
+  getAcademicYearList,
 } from '../../utils/API/AuthService';
 import {
+  getActiveCohortData,
+  getActiveCohortIds,
   getBatchAssignmentCacheKey,
   getDeviceId,
   getuserDetails,
@@ -579,17 +582,41 @@ const LoginScreen = () => {
   await setDataInStorage('templateId', templateId || '');
 
     await setDataInStorage('userTenantid', tenantId || '');
+    // Drop the previous program's batch first: if this program has no active
+    // cohort below, cohortData must stay empty rather than leak across programs.
+    await setDataInStorage('cohortData', '');
 
     let cohort_id;
 
     try {
       const academicyear = await setAcademicYear({ tenantid: tenantId });
       const activeAcademicYearId = academicyear?.[0]?.id;
-      cohort_id = await loadProgramCohort({
-        user_id,
-        tenantid: tenantId,
-        activeAcademicYearId,
-      });
+      const academicyearIdList = await getAcademicYearList({ tenantid: tenantId });
+
+      let resolvedAcademicYearId = activeAcademicYearId;
+
+      for (const ayItem of (Array.isArray(academicyearIdList) && academicyearIdList.length > 0 ? academicyearIdList : [])) {
+        const ayId = ayItem?.id;
+        if (!ayId) continue;
+        const cohortResult = await getCohort({
+          user_id,
+          tenantid: tenantId,
+          academicYearId: ayId,
+        });
+        console.log('#### loginmultirole cohort for ayId', ayId, cohortResult);
+        if (cohortResult.params?.status !== 'failed') {
+          const getActiveCohortId = await getActiveCohortIds(cohortResult);
+          if (getActiveCohortId?.[0]) {
+            const getActiveCohort = await getActiveCohortData(cohortResult);
+            await setDataInStorage('cohortData', JSON.stringify(getActiveCohort?.[0]) || '');
+            cohort_id = getActiveCohortId?.[0];
+            resolvedAcademicYearId = ayId;
+            break;
+          }
+        }
+      }
+
+      await setDataInStorage('academicYearId', resolvedAcademicYearId || '');
     } catch (error) {
       console.error('Error in setting academic year or cohort:', error);
     }
@@ -731,14 +758,38 @@ const LoginScreen = () => {
     await setDataInStorage('templateId', templateId || '');
 
     const academicyear = await setAcademicYear({ tenantid: selectedtenantId });
+    const academicyearIdList = await getAcademicYearList({ tenantid: selectedtenantId });
     const activeAcademicYearId = academicyear?.[0]?.id;
     await setDataInStorage('userTenantid', selectedtenantId || '');
+    // Drop the previous program's batch first: if this program has no active
+    // cohort below, cohortData must stay empty rather than leak across programs.
+    await setDataInStorage('cohortData', '');
 
-    const cohort_id = await loadProgramCohort({
-      user_id,
-      tenantid: selectedtenantId,
-      activeAcademicYearId,
-    });
+    let cohort_id;
+    let resolvedAcademicYearId = activeAcademicYearId;
+
+    for (const ayItem of (academicyearIdList || [])) {
+      const ayId = ayItem?.id;
+      if (!ayId) continue;
+      const cohortResult = await getCohort({
+        user_id,
+        tenantid: selectedtenantId,
+        academicYearId: ayId,
+      });
+      console.log('#### selectedProgramLogin cohort for ayId', ayId, cohortResult);
+      if (cohortResult.params?.status !== 'failed') {
+        const getActiveCohortId = await getActiveCohortIds(cohortResult);
+        if (getActiveCohortId?.[0]) {
+          const getActiveCohort = await getActiveCohortData(cohortResult);
+          await setDataInStorage('cohortData', JSON.stringify(getActiveCohort?.[0]) || '');
+          cohort_id = getActiveCohortId?.[0];
+          resolvedAcademicYearId = ayId;
+          break;
+        }
+      }
+    }
+
+    await setDataInStorage('academicYearId', resolvedAcademicYearId || '');
 
     const profileData = await getProfileDetails({ userId: user_id });
     console.log('#### selectedProgramLogin profileData', profileData);

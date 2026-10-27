@@ -1130,17 +1130,15 @@ export const getDeviceId = async () => {
   return token;
 };
 
-// mycohorts returns an error object (not an array) when the learner has no
-// cohort in the selected program, so treat anything non-array as "no cohorts".
 export const getActiveCohortIds = async (cohortData) => {
-  if (!Array.isArray(cohortData)) return [];
   return cohortData
-    .filter((cohort) => cohort?.cohortMemberStatus === 'active')
-    .map((cohort) => cohort?.cohortId);
+    ?.filter((cohort) => cohort?.cohortMemberStatus === 'active')
+    ?.map((cohort) => cohort?.cohortId);
 };
 export const getActiveCohortData = async (cohortData) => {
-  if (!Array.isArray(cohortData)) return [];
-  return cohortData.filter((cohort) => cohort?.cohortMemberStatus === 'active');
+  return cohortData
+    ?.filter((cohort) => cohort?.cohortMemberStatus === 'active')
+    ?.map((cohort) => cohort);
 };
 
 // utils.js

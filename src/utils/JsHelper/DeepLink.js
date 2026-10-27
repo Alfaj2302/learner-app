@@ -1,7 +1,7 @@
 import { courseDetails, hierarchyContent, readContent } from '../API/ApiCalls';
 import {
   getUserDetails,
-  loadProgramCohort,
+  getCohort,
   getProfileDetails,
   getProgramDetails,
   setAcademicYear,
@@ -13,6 +13,8 @@ import {
   deleteSavedItem,
   setDataInStorage,
   getuserDetails,
+  getActiveCohortData,
+  getActiveCohortIds,
   storeUsername,
   getDeviceId,
 } from './Helper';
@@ -70,14 +72,29 @@ const switchToProgram = async (tenant, navigation) => {
 
     const academicyear = await setAcademicYear({ tenantid: tenantId });
     const academicYearId = academicyear?.[0]?.id;
+    await setDataInStorage('academicYearId', academicYearId || '');
     await setDataInStorage('userTenantid', tenantId || '');
-
-    const cohort_id = await loadProgramCohort({
+    
+    const cohort = await getCohort({
       user_id,
       tenantid: tenantId,
-      activeAcademicYearId: academicYearId,
+      academicYearId,
     });
-    console.log('#### DeepLink: cohort_id', cohort_id);
+    console.log('#### DeepLink: cohort', cohort);
+
+    // Drop the previous program's batch first: if this program has no active
+    // cohort below, cohortData must stay empty rather than leak across programs.
+    await setDataInStorage('cohortData', '');
+    let cohort_id;
+    if (cohort.params?.status !== 'failed') {
+      const getActiveCohort = await getActiveCohortData(cohort);
+      const getActiveCohortId = await getActiveCohortIds(cohort);
+      await setDataInStorage(
+        'cohortData',
+        JSON.stringify(getActiveCohort?.[0]) || ''
+      );
+      cohort_id = getActiveCohortId?.[0];
+    }
 
     const profileData = await getProfileDetails({
       userId: user_id,

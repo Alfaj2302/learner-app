@@ -2,11 +2,9 @@ import axios from 'axios';
 import {
   createNewObject,
   createNewObjectTarget,
-  getActiveCohortData,
   getDataFromStorage,
   getDefaultProgramTags,
   getTentantId,
-  setDataInStorage,
 } from '../JsHelper/Helper';
 import {
   deleteData,
@@ -842,77 +840,6 @@ export const getAcademicYearList = async ({ tenantid }) => {
     return handleResponseException(e);
   }
 };
-export const isActiveBatch = (cohort) =>
-  cohort?.type === 'BATCH' &&
-  cohort?.cohortMemberStatus === 'active' &&
-  cohort?.cohortStatus === 'active';
-
-// Academic year ids for one program, preferred year first. mycohorts is scoped
-// by the tenantid + academicyearid headers, and admins/teachers can assign a
-// batch under any of the program's years — not only the active one.
-export const getProgramAcademicYearIds = async ({
-  tenantid,
-  preferredAcademicYearId,
-}) => {
-  const list = await getAcademicYearList({ tenantid });
-  const ids = Array.isArray(list) ? list.map((ay) => ay?.id) : [];
-  return [...new Set([preferredAcademicYearId, ...ids].filter(Boolean))];
-};
-
-// Walks the given academic years of one program and returns the learner's
-// active cohort there, preferring an active BATCH over other cohort types.
-// `failed` is true when no year returned a cohort list at all (e.g. offline).
-export const findProgramCohort = async ({
-  user_id,
-  tenantid,
-  academicYearIds,
-}) => {
-  let fallback = null;
-  let failed = true;
-  for (const academicYearId of academicYearIds) {
-    const result = await getCohort({ user_id, tenantid, academicYearId });
-    if (Array.isArray(result)) {
-      failed = false;
-    }
-    const activeCohorts = await getActiveCohortData(result);
-    const batch = activeCohorts.find(isActiveBatch);
-    if (batch) {
-      return { cohort: batch, academicYearId, failed: false };
-    }
-    if (!fallback && activeCohorts.length) {
-      fallback = { cohort: activeCohorts[0], academicYearId };
-    }
-  }
-  return { cohort: null, academicYearId: null, ...fallback, failed };
-};
-
-// Resolves and stores the learner's cohort for the program being entered.
-// cohortData is always rewritten so a previous program's batch never leaks in;
-// academicYearId is set to the year the cohort was found in (else the active
-// year). Returns the cohortId, or undefined when the program has none.
-export const loadProgramCohort = async ({
-  user_id,
-  tenantid,
-  activeAcademicYearId,
-}) => {
-  await setDataInStorage('cohortData', '');
-  const academicYearIds = await getProgramAcademicYearIds({
-    tenantid,
-    preferredAcademicYearId: activeAcademicYearId,
-  });
-  const { cohort, academicYearId } = await findProgramCohort({
-    user_id,
-    tenantid,
-    academicYearIds,
-  });
-  await setDataInStorage('cohortData', cohort ? JSON.stringify(cohort) : '');
-  await setDataInStorage(
-    'academicYearId',
-    academicYearId || activeAcademicYearId || ''
-  );
-  return cohort?.cohortId;
-};
-
 // Assessment List API
 
 export const assessmentListApi = async (params = {}) => {
