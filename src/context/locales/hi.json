@@ -650,5 +650,10 @@
   "of": "में से",
   "completed_lowercase": "पूरा हुआ",
   "start_assessment": "मूल्यांकन शुरू करें",
-  "take_second_attempt": "दूसरा प्रयास करें"
+  "take_second_attempt": "दूसरा प्रयास करें",
+  "from_which_board_did_you_pass_class_10": "आपने कक्षा 10 किस बोर्ड से उत्तीर्ण की?",
+  "from_which_board_did_you_pass_class_10_other": "कृपया वह बोर्ड बताएं जिससे आपने कक्षा 10 उत्तीर्ण की",
+  "what_division_/_percentage_did_you_get_in_class_10": "कक्षा 10 में आपको कौन सी श्रेणी / कितने प्रतिशत मिले?",
+  "have_you_studied_in_pratham's_second_chance_program": "क्या आपने प्रथम के सेकंड चांस प्रोग्राम में पढ़ाई की है?",
+  "in_which_year_did_you_pass_class_10": "आपने कक्षा 10 किस वर्ष उत्तीर्ण की?"
 }

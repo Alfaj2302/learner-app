@@ -650,5 +650,10 @@
   "of": "میں سے",
   "completed_lowercase": "مکمل ہو گیا",
   "start_assessment": "تشخیص شروع کریں",
-  "take_second_attempt": "دوسری کوشش کریں"
+  "take_second_attempt": "دوسری کوشش کریں",
+  "from_which_board_did_you_pass_class_10": "آپ نے دسویں جماعت کس بورڈ سے پاس کی؟",
+  "from_which_board_did_you_pass_class_10_other": "براہ کرم وہ بورڈ بتائیں جس سے آپ نے دسویں جماعت پاس کی",
+  "what_division_/_percentage_did_you_get_in_class_10": "دسویں جماعت میں آپ کو کون سا ڈویژن / کتنے فیصد ملے؟",
+  "have_you_studied_in_pratham's_second_chance_program": "کیا آپ نے پرتھم کے سیکنڈ چانس پروگرام میں تعلیم حاصل کی ہے؟",
+  "in_which_year_did_you_pass_class_10": "آپ نے دسویں جماعت کس سال پاس کی؟"
 }

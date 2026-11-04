@@ -650,5 +650,10 @@
   "of": "ರಲ್ಲಿ",
   "completed_lowercase": "ಪೂರ್ಣಗೊಂಡಿದೆ",
   "start_assessment": "ಮೌಲ್ಯಮಾಪನ ಪ್ರಾರಂಭಿಸಿ",
-  "take_second_attempt": "ಎರಡನೇ ಪ್ರಯತ್ನ ಮಾಡಿ"
+  "take_second_attempt": "ಎರಡನೇ ಪ್ರಯತ್ನ ಮಾಡಿ",
+  "from_which_board_did_you_pass_class_10": "ನೀವು 10ನೇ ತರಗತಿಯನ್ನು ಯಾವ ಮಂಡಳಿಯಿಂದ ಉತ್ತೀರ್ಣರಾಗಿದ್ದೀರಿ?",
+  "from_which_board_did_you_pass_class_10_other": "ದಯವಿಟ್ಟು ನೀವು 10ನೇ ತರಗತಿ ಉತ್ತೀರ್ಣರಾದ ಮಂಡಳಿಯನ್ನು ನಮೂದಿಸಿ",
+  "what_division_/_percentage_did_you_get_in_class_10": "10ನೇ ತರಗತಿಯಲ್ಲಿ ನೀವು ಯಾವ ದರ್ಜೆ / ಎಷ್ಟು ಶೇಕಡಾ ಪಡೆದಿದ್ದೀರಿ?",
+  "have_you_studied_in_pratham's_second_chance_program": "ನೀವು ಪ್ರಥಮ್‌ನ ಸೆಕೆಂಡ್ ಚಾನ್ಸ್ ಕಾರ್ಯಕ್ರಮದಲ್ಲಿ ಓದಿದ್ದೀರಾ?",
+  "in_which_year_did_you_pass_class_10": "ನೀವು 10ನೇ ತರಗತಿಯನ್ನು ಯಾವ ವರ್ಷದಲ್ಲಿ ಉತ್ತೀರ್ಣರಾಗಿದ್ದೀರಿ?"
 }

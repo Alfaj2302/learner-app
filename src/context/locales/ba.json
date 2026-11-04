@@ -634,5 +634,10 @@
   "of": "এর মধ্যে",
   "completed_lowercase": "সম্পন্ন",
   "start_assessment": "মূল্যায়ন শুরু করুন",
-  "take_second_attempt": "দ্বিতীয় প্রচেষ্টা নিন"
+  "take_second_attempt": "দ্বিতীয় প্রচেষ্টা নিন",
+  "from_which_board_did_you_pass_class_10": "আপনি কোন বোর্ড থেকে দশম শ্রেণি পাস করেছেন?",
+  "from_which_board_did_you_pass_class_10_other": "অনুগ্রহ করে যে বোর্ড থেকে দশম শ্রেণি পাস করেছেন তা উল্লেখ করুন",
+  "what_division_/_percentage_did_you_get_in_class_10": "দশম শ্রেণিতে আপনি কোন বিভাগ / কত শতাংশ পেয়েছেন?",
+  "have_you_studied_in_pratham's_second_chance_program": "আপনি কি প্রথমের সেকেন্ড চান্স প্রোগ্রামে পড়াশোনা করেছেন?",
+  "in_which_year_did_you_pass_class_10": "আপনি কোন সালে দশম শ্রেণি পাস করেছেন?"
 }

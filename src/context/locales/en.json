@@ -652,5 +652,10 @@
   "failed_to_switch_program": "Failed to switch program:",
   "switched_to": "Switched to",
   "failed_to_switch_program_please_try_again": "Failed to switch program. Please try again.",
-  "show_all_programs": "Show All Programs"
+  "show_all_programs": "Show All Programs",
+  "from_which_board_did_you_pass_class_10": "From which board did you pass Class 10?",
+  "from_which_board_did_you_pass_class_10_other": "Please specify the board from which you passed Class 10",
+  "what_division_/_percentage_did_you_get_in_class_10": "What division / percentage did you get in Class 10?",
+  "have_you_studied_in_pratham's_second_chance_program": "Have you studied in Pratham's Second Chance Program?",
+  "in_which_year_did_you_pass_class_10": "In which year did you pass Class 10?"
 }

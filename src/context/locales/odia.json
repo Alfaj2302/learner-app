@@ -650,5 +650,10 @@
   "of": "ର",
   "completed_lowercase": "ସମ୍ପୂର୍ଣ୍ଣ",
   "start_assessment": "ମୂଲ୍ୟାଙ୍କନ ଆରମ୍ଭ କରନ୍ତୁ",
-  "take_second_attempt": "ଦ୍ୱିତୀୟ ପ୍ରୟାସ କରନ୍ତୁ"
+  "take_second_attempt": "ଦ୍ୱିତୀୟ ପ୍ରୟାସ କରନ୍ତୁ",
+  "from_which_board_did_you_pass_class_10": "ଆପଣ କେଉଁ ବୋର୍ଡରୁ ଦଶମ ଶ୍ରେଣୀ ପାସ କରିଛନ୍ତି?",
+  "from_which_board_did_you_pass_class_10_other": "ଦୟାକରି ଆପଣ ଦଶମ ଶ୍ରେଣୀ ପାସ କରିଥିବା ବୋର୍ଡର ନାମ ଉଲ୍ଲେଖ କରନ୍ତୁ",
+  "what_division_/_percentage_did_you_get_in_class_10": "ଦଶମ ଶ୍ରେଣୀରେ ଆପଣ କେଉଁ ଡିଭିଜନ / କେତେ ପ୍ରତିଶତ ପାଇଥିଲେ?",
+  "have_you_studied_in_pratham's_second_chance_program": "ଆପଣ ପ୍ରଥମଙ୍କ ସେକେଣ୍ଡ ଚାନ୍ସ ପ୍ରୋଗ୍ରାମରେ ପଢିଛନ୍ତି କି?",
+  "in_which_year_did_you_pass_class_10": "ଆପଣ କେଉଁ ବର୍ଷରେ ଦଶମ ଶ୍ରେଣୀ ପାସ କରିଛନ୍ତି?"
 }

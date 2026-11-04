@@ -570,15 +570,19 @@ export const translateDate = (dateStr, lang) => {
   }
 };
 
+// Labels are compared after stripping punctuation and case on BOTH sides, so
+// labels like "What_DIVISION_/_PERCENTAGE..." or "PRATHAM'S..." still match.
+const normalizeFieldLabel = (label) =>
+  label?.replace(/[^a-zA-Z0-9_ ]/g, '').toLowerCase();
+
 export const createNewObject = (customFields, labels, profileView) => {
   const result = {};
 
   customFields?.forEach((field) => {
-    const cleanedFieldLabel = field?.label?.replace(/[^a-zA-Z0-9_ ]/g, '');
-    // console.log('cleanedFieldLabel', cleanedFieldLabel);
+    const cleanedFieldLabel = normalizeFieldLabel(field?.label);
 
     labels.map((item) => {
-      if (item?.label === cleanedFieldLabel) {
+      if (cleanedFieldLabel && normalizeFieldLabel(item?.label) === cleanedFieldLabel) {
         const selectedValues = field?.selectedValues;
 
         if (field.type === 'drop_down') {
@@ -847,6 +851,12 @@ export const PROFILE_BANNER_EXCLUDED_FIELDS = [
 export const isProfileFieldRequired = (field) =>
   field?.validation?.isRequired ?? field?.isRequired;
 
+// "Please specify" fields (e.g. fromWhichBoardDidYouPassClass10Other) only apply
+// when their parent field - the same name minus the Other suffix - is "other".
+// Returns that parent's name, or null for any other field.
+export const getOtherFieldParent = (name) =>
+  name?.match(/^(.+?)(?:Other|_other|_OTHER)$/)?.[1] || null;
+
 // Whether `field` should be rendered at all given the rest of the form's current
 // values. Single source of truth shared by the Edit Profile form, the Complete
 // Profile mini-form, and the banner's completeness check, so the three can't
@@ -905,6 +915,14 @@ export const isProfileFieldVisible = (field, formData) => {
       : rawPhoneType;
   if (field?.name === 'own_phone_check' && phoneType === 'nophone') {
     return false;
+  }
+
+  const otherParent = getOtherFieldParent(field?.name);
+  if (otherParent) {
+    const rawParent = formData?.[otherParent];
+    const parentValue =
+      rawParent && typeof rawParent === 'object' ? rawParent.value : rawParent;
+    return String(parentValue ?? '').toLowerCase() === 'other';
   }
 
   return true;
