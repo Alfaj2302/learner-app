@@ -1,12 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import {
   View,
-  Text,
   Modal,
-  Button,
   StyleSheet,
   Linking,
-  TouchableOpacity,
 } from 'react-native';
 import { checkVersion } from 'react-native-check-version';
 import PrimaryButton from '../PrimaryButton/PrimaryButton';
@@ -17,6 +14,7 @@ import globalStyles from '../../utils/Helper/Style';
 const AppUpdatePopup = () => {
   const [isUpdateAvailable, setIsUpdateAvailable] = useState(false);
   const [latestVersion, setLatestVersion] = useState('');
+  const [storeUrl, setStoreUrl] = useState('');
   const { t } = useTranslation();
 
   useEffect(() => {
@@ -25,6 +23,7 @@ const AppUpdatePopup = () => {
         const version = await checkVersion();
 
         setLatestVersion(version?.version);
+        setStoreUrl(version?.url);
         if (version.needsUpdate) {
           setIsUpdateAvailable(true);
         }
@@ -37,16 +36,22 @@ const AppUpdatePopup = () => {
   }, []);
 
   const handleUpdate = async () => {
-    const version = await checkVersion();
-    const storeUrl = Platform.OS === 'ios' ? version.url : version.url;
-
-    Linking.openURL(storeUrl).catch((err) =>
-      console.error('Failed to open store URL: ', err)
-    );
+    try {
+      const url = storeUrl || (await checkVersion())?.url;
+      await Linking.openURL(url);
+    } catch (err) {
+      console.error('Failed to open store URL: ', err);
+    }
   };
 
+  // Forced update: popup cannot be dismissed (no "Not now", Android back is ignored)
   return (
-    <Modal transparent={true} visible={isUpdateAvailable} animationType="slide">
+    <Modal
+      transparent={true}
+      visible={isUpdateAvailable}
+      animationType="slide"
+      onRequestClose={() => {}}
+    >
       <View style={styles.modalBackground}>
         <View style={styles.modalContainer}>
           <GlobalText style={styles.title}>{t('update_available')}</GlobalText>
@@ -60,15 +65,6 @@ const AppUpdatePopup = () => {
           </GlobalText>
 
           <PrimaryButton onPress={handleUpdate} text={t('update_now')} />
-
-          <TouchableOpacity
-            style={styles.button}
-            onPress={() => setIsUpdateAvailable(false)}
-          >
-            <GlobalText style={[styles.buttonText, globalStyles.text]}>
-              {t('not_now')}
-            </GlobalText>
-          </TouchableOpacity>
         </View>
       </View>
     </Modal>
@@ -99,13 +95,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 20,
     color: 'black',
-  },
-  button: {
-    width: '100%',
-  },
-  buttonText: {
-    textAlign: 'center',
-    marginVertical: 10,
   },
 });
 
