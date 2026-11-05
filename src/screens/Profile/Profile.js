@@ -173,6 +173,7 @@ const Profile = () => {
       'middleName',
       'lastName',
       'tenantId',
+      'tenantJoinedAt',
       'center',
     ];
 
