@@ -650,5 +650,10 @@
   "of": "இல்",
   "completed_lowercase": "முடிந்தது",
   "start_assessment": "மதிப்பீட்டைத் தொடங்கு",
-  "take_second_attempt": "இரண்டாவது முயற்சியை மேற்கொள்ளுங்கள்"
+  "take_second_attempt": "இரண்டாவது முயற்சியை மேற்கொள்ளுங்கள்",
+  "from_which_board_did_you_pass_class_10": "நீங்கள் 10ஆம் வகுப்பை எந்த வாரியத்தில் தேர்ச்சி பெற்றீர்கள்?",
+  "from_which_board_did_you_pass_class_10_other": "நீங்கள் 10ஆம் வகுப்பில் தேர்ச்சி பெற்ற வாரியத்தைக் குறிப்பிடவும்",
+  "what_division_/_percentage_did_you_get_in_class_10": "10ஆம் வகுப்பில் நீங்கள் எந்த பிரிவு / எத்தனை சதவீதம் பெற்றீர்கள்?",
+  "have_you_studied_in_pratham's_second_chance_program": "நீங்கள் பிரதமின் செகண்ட் சான்ஸ் திட்டத்தில் படித்திருக்கிறீர்களா?",
+  "in_which_year_did_you_pass_class_10": "நீங்கள் 10ஆம் வகுப்பை எந்த ஆண்டில் தேர்ச்சி பெற்றீர்கள்?"
 }

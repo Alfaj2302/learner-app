@@ -27,7 +27,7 @@ const LearningMaterial = () => {
       setLoading(true);
       const boardData = await LearningMaterialAPI();
 
-      const cohortData = JSON.parse(await getDataFromStorage('cohortData'));
+      const cohortData = JSON.parse((await getDataFromStorage('cohortData')) || 'null');
 
       console.log('cohortData', JSON.stringify(cohortData));
 

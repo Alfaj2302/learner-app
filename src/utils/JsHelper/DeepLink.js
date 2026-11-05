@@ -81,7 +81,10 @@ const switchToProgram = async (tenant, navigation) => {
       academicYearId,
     });
     console.log('#### DeepLink: cohort', cohort);
-    
+
+    // Drop the previous program's batch first: if this program has no active
+    // cohort below, cohortData must stay empty rather than leak across programs.
+    await setDataInStorage('cohortData', '');
     let cohort_id;
     if (cohort.params?.status !== 'failed') {
       const getActiveCohort = await getActiveCohortData(cohort);

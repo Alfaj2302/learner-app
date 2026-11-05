@@ -650,5 +650,10 @@
   "of": "पैकी",
   "completed_lowercase": "पूर्ण झाले",
   "start_assessment": "मूल्यांकन सुरू करा",
-  "take_second_attempt": "दुसरा प्रयत्न करा"
+  "take_second_attempt": "दुसरा प्रयत्न करा",
+  "from_which_board_did_you_pass_class_10": "तुम्ही इयत्ता 10 वी कोणत्या बोर्डातून उत्तीर्ण झालात?",
+  "from_which_board_did_you_pass_class_10_other": "कृपया तुम्ही इयत्ता 10 वी उत्तीर्ण झालेल्या बोर्डाचे नाव नमूद करा",
+  "what_division_/_percentage_did_you_get_in_class_10": "इयत्ता 10 वी मध्ये तुम्हाला कोणती श्रेणी / किती टक्के मिळाले?",
+  "have_you_studied_in_pratham's_second_chance_program": "तुम्ही प्रथमच्या सेकंड चान्स प्रोग्राममध्ये शिक्षण घेतले आहे का?",
+  "in_which_year_did_you_pass_class_10": "तुम्ही इयत्ता 10 वी कोणत्या वर्षी उत्तीर्ण झालात?"
 }

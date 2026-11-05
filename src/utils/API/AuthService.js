@@ -1790,7 +1790,7 @@ export const eventList = async ({ startDate, endDate }) => {
   const url = `${EndUrls.eventList}`; // Define the URL
   const headers = await getHeaders();
   const academicYearId = await getDataFromStorage('academicYearId');
-  const cohort = JSON.parse(await getDataFromStorage('cohortData'));
+  const cohort = JSON.parse((await getDataFromStorage('cohortData')) || 'null');
   const payload = {
     limit: 0,
     offset: 0,
@@ -1855,7 +1855,7 @@ export const targetedSolutions = async ({ subjectName, type,academicYear="" }) =
       'AWSALB=QVc9G+7LKggb8zF3qcLslwzgKzrKMO8SR2IhHCuIOYqAWLb7Z8j/dQsgOgAcWzoHng47JkYeBVsERcq2LH1Uqrcw371BlDe3KXU84ewyOlTU2Gxi9KwnIGIRKHW+; AWSALBCORS=QVc9G+7LKggb8zF3qcLslwzgKzrKMO8SR2IhHCuIOYqAWLb7Z8j/dQsgOgAcWzoHng47JkYeBVsERcq2LH1Uqrcw371BlDe3KXU84ewyOlTU2Gxi9KwnIGIRKHW+',
     'x-auth-token': token,
   };
-  const cohort = JSON.parse(await getDataFromStorage('cohortData'));
+  const cohort = JSON.parse((await getDataFromStorage('cohortData')) || 'null');
   // console.log('cohort==>', JSON.stringify(cohort));
 
   const requiredLabels = ['GRADE', 'STATES', 'MEDIUM', 'BOARD'];

@@ -582,6 +582,9 @@ const LoginScreen = () => {
   await setDataInStorage('templateId', templateId || '');
 
     await setDataInStorage('userTenantid', tenantId || '');
+    // Drop the previous program's batch first: if this program has no active
+    // cohort below, cohortData must stay empty rather than leak across programs.
+    await setDataInStorage('cohortData', '');
 
     let cohort_id;
 
@@ -758,6 +761,9 @@ const LoginScreen = () => {
     const academicyearIdList = await getAcademicYearList({ tenantid: selectedtenantId });
     const activeAcademicYearId = academicyear?.[0]?.id;
     await setDataInStorage('userTenantid', selectedtenantId || '');
+    // Drop the previous program's batch first: if this program has no active
+    // cohort below, cohortData must stay empty rather than leak across programs.
+    await setDataInStorage('cohortData', '');
 
     let cohort_id;
     let resolvedAcademicYearId = activeAcademicYearId;

@@ -23,13 +23,27 @@ import {
   getActiveCohortIds,
   setDataInStorage 
 } from '../../utils/JsHelper/Helper';
-import { getCohort } from '../../utils/API/AuthService';
+import { getAcademicYearList, getCohort } from '../../utils/API/AuthService';
 import {
   useTabBarStyle,
   useTabLabelStyle,
 } from '../../utils/Helper/TabScreenHelper';
 
 const Tab = createBottomTabNavigator();
+// While the current program has no batch, how often (at most) the refresh
+// re-checks the program's other academic years for a newly assigned one.
+const FULL_SCAN_INTERVAL_MS = 30 * 1000;
+// Requests have no timeout, so a refresh stuck on a dead connection must not
+// block every later refresh forever.
+const REFRESH_STALE_MS = 60 * 1000;
+
+// True when a mycohorts response's first active cohort is an active batch —
+// the same cohort the refresh below stores and checks.
+const hasActiveBatch = (cohort) => {
+  if (!Array.isArray(cohort)) return false;
+  const first = cohort.find((item) => item?.cohortMemberStatus === 'active');
+  return first?.type === 'BATCH' && first?.cohortStatus === 'active';
+};
 const WalkthroughableView = walkthroughable(View);
 
 const SCPUserTabScreen = () => {
@@ -38,6 +52,8 @@ const SCPUserTabScreen = () => {
   const navigation = useNavigation();
   const isFocused = useIsFocused();
   const appState = useRef(AppState.currentState);
+  const refreshStartedAtRef = useRef(0);
+  const lastFullScanRef = useRef(0);
   const [CopilotStopped, setCopilotStopped] = useState(false);
   const [showCoursesTab, setShowCoursesTab] = useState(false);
   const [showMyClassTab, setShowMyClassTab] = useState(false);
@@ -53,6 +69,11 @@ const SCPUserTabScreen = () => {
 
   // Function to update cohort data from API and refresh tabs
   const refreshCohortData = useCallback(async () => {
+    // The 3s poll below can fire while a slower multi-year check is running.
+    const startedAt = Date.now();
+    if (startedAt - refreshStartedAtRef.current < REFRESH_STALE_MS) return;
+    refreshStartedAtRef.current = startedAt;
+
     try {
       // Get required data from storage
       const tenantData = JSON.parse(await getDataFromStorage('tenantData') || '[]');
@@ -79,11 +100,36 @@ const SCPUserTabScreen = () => {
       }
 
       // Fetch fresh cohort data from API
-      const cohort = await getCohort({
+      let cohort = await getCohort({
         user_id,
         tenantid,
         academicYearId,
       });
+
+      // Login checks every academic year of the program, but this refresh only
+      // checks the stored one. A batch assigned while logged in can belong to a
+      // different year, so while there is no batch, periodically check the others.
+      const now = Date.now();
+      if (
+        !hasActiveBatch(cohort) &&
+        now - lastFullScanRef.current > FULL_SCAN_INTERVAL_MS
+      ) {
+        lastFullScanRef.current = now;
+        const academicYears = await getAcademicYearList({ tenantid });
+        for (const academicYear of Array.isArray(academicYears) ? academicYears : []) {
+          if (!academicYear?.id || academicYear.id === academicYearId) continue;
+          const otherCohort = await getCohort({
+            user_id,
+            tenantid,
+            academicYearId: academicYear.id,
+          });
+          if (hasActiveBatch(otherCohort)) {
+            cohort = otherCohort;
+            await setDataInStorage('academicYearId', academicYear.id);
+            break;
+          }
+        }
+      }
 
       if (cohort?.params?.status !== 'failed' && cohort) {
         const getActiveCohort = await getActiveCohortData(cohort);
@@ -147,6 +193,11 @@ const SCPUserTabScreen = () => {
         setShowHomeTab(false);
         setShowMyClassTab(false);
       }
+    } finally {
+      // Only clear our own run; a stale run finishing late must not reset a newer one.
+      if (refreshStartedAtRef.current === startedAt) {
+        refreshStartedAtRef.current = 0;
+      }
     }
   }, []);
 
@@ -179,7 +230,9 @@ const SCPUserTabScreen = () => {
         appState.current.match(/inactive|background/) &&
         nextAppState === 'active'
       ) {
-        // App has come to the foreground, refresh cohort data
+        // App has come to the foreground, refresh cohort data. Skip the
+        // multi-year throttle so a batch assigned meanwhile shows immediately.
+        lastFullScanRef.current = 0;
         refreshCohortData();
       }
       appState.current = nextAppState;

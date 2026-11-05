@@ -46,7 +46,7 @@ const Assessment = ({ header, background }) => {
     setLoading(true);
     const user_id = await getDataFromStorage('userId');
     const cohortparse = await getDataFromStorage('cohortData');
-    const cohort = JSON.parse(cohortparse);
+    const cohort = JSON.parse(cohortparse || 'null');
     const cohort_id = await getDataFromStorage('cohortId');
     //console.log('########### cohort', cohort);
     let board = null;

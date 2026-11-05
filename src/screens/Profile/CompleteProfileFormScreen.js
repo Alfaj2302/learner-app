@@ -23,6 +23,7 @@ import {
   buildUserDetailsObject,
   getDataFromStorage,
   getMergedProfileSchema,
+  getOtherFieldParent,
   getProfileFormFields,
   logEventFunction,
   setDataInStorage,
@@ -82,6 +83,13 @@ const CompleteProfileFormScreen = () => {
         // schema - once the user picks one, isFieldVisible() shows only that one.
         FAMILY_NAME_FIELDS.forEach((name) => fieldsToShow.add(name));
       }
+      // Same for "please specify" fields: keep e.g. fromWhichBoardDidYouPassClass10Other
+      // in the schema while its parent is being asked, so picking "other" shows it.
+      schema.forEach((field) => {
+        if (fieldsToShow.has(getOtherFieldParent(field?.name))) {
+          fieldsToShow.add(field.name);
+        }
+      });
 
       setFilteredSchema(schema.filter((field) => fieldsToShow.has(field.name)));
       // Seed with the user's already-saved values (not just the missing ones) so

@@ -650,5 +650,10 @@
   "of": "માંથી",
   "completed_lowercase": "પૂર્ણ થયું",
   "start_assessment": "મૂલ્યાંકન શરૂ કરો",
-  "take_second_attempt": "બીજો પ્રયાસ કરો"
+  "take_second_attempt": "બીજો પ્રયાસ કરો",
+  "from_which_board_did_you_pass_class_10": "તમે ધોરણ 10 કયા બોર્ડમાંથી પાસ કર્યું?",
+  "from_which_board_did_you_pass_class_10_other": "કૃપા કરીને જે બોર્ડમાંથી તમે ધોરણ 10 પાસ કર્યું તેનું નામ જણાવો",
+  "what_division_/_percentage_did_you_get_in_class_10": "ધોરણ 10 માં તમને કયો વર્ગ / કેટલા ટકા મળ્યા?",
+  "have_you_studied_in_pratham's_second_chance_program": "શું તમે પ્રથમના સેકન્ડ ચાન્સ પ્રોગ્રામમાં અભ્યાસ કર્યો છે?",
+  "in_which_year_did_you_pass_class_10": "તમે ધોરણ 10 કયા વર્ષમાં પાસ કર્યું?"
 }

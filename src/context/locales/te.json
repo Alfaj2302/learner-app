@@ -650,5 +650,10 @@
   "of": "లో",
   "completed_lowercase": "పూర్తయింది",
   "start_assessment": "మూల్యాంకనం ప్రారంభించండి",
-  "take_second_attempt": "రెండవ ప్రయత్నం చేయండి"
+  "take_second_attempt": "రెండవ ప్రయత్నం చేయండి",
+  "from_which_board_did_you_pass_class_10": "మీరు 10వ తరగతి ఏ బోర్డు నుండి ఉత్తీర్ణులయ్యారు?",
+  "from_which_board_did_you_pass_class_10_other": "దయచేసి మీరు 10వ తరగతి ఉత్తీర్ణులైన బోర్డును పేర్కొనండి",
+  "what_division_/_percentage_did_you_get_in_class_10": "10వ తరగతిలో మీకు ఏ డివిజన్ / ఎంత శాతం వచ్చింది?",
+  "have_you_studied_in_pratham's_second_chance_program": "మీరు ప్రథమ్ సెకండ్ ఛాన్స్ ప్రోగ్రామ్‌లో చదివారా?",
+  "in_which_year_did_you_pass_class_10": "మీరు 10వ తరగతి ఏ సంవత్సరంలో ఉత్తీర్ణులయ్యారు?"
 }
