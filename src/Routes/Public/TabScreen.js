@@ -19,6 +19,7 @@ import DashboardStack from './DashboardStack';
 import SurveyStack from '../Youthnet/SurveyStack';
 import ExploreStack from '../Youthnet/ExploreStack';
 import AssessmentStack from '../Youthnet/AssessmentStack';
+import L2CoursesStack from '../Youthnet/L2CoursesStack';
 import useActiveBatchEligibility from '../../utils/Helper/useActiveBatchEligibility';
 import Contents from '../../screens/Dashboard/Contents';
 import Coursesfilled from '../../assets/images/png/Coursesfilled.png';
@@ -55,7 +56,8 @@ const WalkthroughableView = walkthroughable(View); // Wrap Image component
   const insets = useSafeAreaInsets();
   const tabBarStyle = useTabBarStyle();
   const tabLabelStyle = useTabLabelStyle();
-  // Vocational Training learners with an active batch get the Assessment tab.
+  // Vocational Training learners with an active batch get the L2 Courses and
+  // Assessment tabs.
   const hasActiveBatch = useActiveBatchEligibility(userType === 'youthnet');
 
   // useEffect(() => {
@@ -257,6 +259,21 @@ const WalkthroughableView = walkthroughable(View); // Wrap Image component
             tabBarIcon: ({ focused }) => (
               <Image
                 source={focused ? explore_FILL : explore_UNFILLED}
+                style={{ width: 30, height: 30 }}
+              />
+            ),
+          }}
+        />
+      )}
+      {userType === 'youthnet' && hasActiveBatch && (
+        <Tab.Screen
+          name="L2CoursesStack"
+          component={L2CoursesStack}
+          options={{
+            tabBarLabel: t('l2_courses'),
+            tabBarIcon: ({ focused }) => (
+              <Image
+                source={focused ? Coursesfilled : Coursesunfilled}
                 style={{ width: 30, height: 30 }}
               />
             ),

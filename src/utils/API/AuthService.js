@@ -20,7 +20,10 @@ import RNFS from 'react-native-fs';
 import { Alert } from 'react-native';
 import RNHTMLtoPDF from 'react-native-html-to-pdf';
 import Share from 'react-native-share';
-import { TENANT_DATA } from '../Constants/app-constants';
+import {
+  CONTENT_PLATFORM_IDS,
+  TENANT_DATA,
+} from '../Constants/app-constants';
 
 const getHeaders = async () => {
   const token = await getDataFromStorage('Accesstoken');
@@ -526,6 +529,78 @@ export const courseListApi_New = async ({
       return result_offline;
     }
   } catch (e) {
+    let result_offline = await getApiResponse(user_id, url, 'post', payload);
+    return result_offline;
+  }
+};
+
+// Vocational Training L2 courses for the skills on the learner's batch.
+export const l2CourseListApi = async ({
+  skills,
+  searchText,
+  offset = 0,
+  limit = 6,
+}) => {
+  const user_id = await getDataFromStorage('userId');
+  const url = `${EndUrls.contentSearch}`;
+  const headers = {
+    'Content-Type': 'application/json',
+    Accept: 'application/json',
+  };
+  const contentFilter =
+    JSON.parse(await getDataFromStorage('contentFilter')) || {};
+  const program = contentFilter?.program || TENANT_DATA.YOUTHNET;
+  const preferredLanguage = await getDataFromStorage('preferred_language');
+
+  const payload = {
+    request: {
+      filters: {
+        ...(preferredLanguage ? { contentLanguage: [preferredLanguage] } : {}),
+        program: Array.isArray(program) ? program : [program],
+        se_skills: skills,
+        status: ['live'],
+        channel: CONTENT_PLATFORM_IDS.DEFAULT.channelId,
+        primaryCategory: ['Course'],
+      },
+      ...(searchText && { query: searchText }),
+      fields: [
+        'name',
+        'englishName',
+        'appIcon',
+        'description',
+        'posterImage',
+        'mimeType',
+        'identifier',
+        'resourceType',
+        'primaryCategory',
+        'contentType',
+        'trackable',
+        'children',
+        'leafNodes',
+      ],
+      limit,
+      offset,
+    },
+  };
+
+  try {
+    const result = await post(url, payload, { headers });
+
+    if (result) {
+      await storeApiResponse(
+        user_id,
+        url,
+        'post',
+        payload,
+        result?.data?.result
+      );
+      return result?.data?.result;
+    } else {
+      let result_offline = await getApiResponse(user_id, url, 'post', payload);
+      return result_offline;
+    }
+  } catch (e) {
+    console.log('l2CourseListApi: using offline data', e);
     let result_offline = await getApiResponse(user_id, url, 'post', payload);
     return result_offline;
   }

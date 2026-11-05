@@ -37,6 +37,36 @@ const readStoredEligibility = async (tenantid) => {
 };
 
 /**
+ * Values of the active batch's SKILLS custom field (e.g. ["Aari Work"]), read
+ * from the `cohortData` this hook stored for the current tenant. Courses index
+ * the same pos-framework level as `se_skills`, so these filter L2 courses
+ * directly. Empty when there is no active batch or it has no skill.
+ */
+export const getActiveBatchSkills = async () => {
+  try {
+    const tenantData = JSON.parse(
+      (await getDataFromStorage('tenantData')) || '[]'
+    );
+    if (!(await readStoredEligibility(tenantData?.[0]?.tenantId))) {
+      return [];
+    }
+    const cohort = JSON.parse(await getDataFromStorage('cohortData'));
+    const skillsField = cohort?.customField?.find(
+      (field) => field?.label === 'SKILLS'
+    );
+    // selectedValues entries are either plain strings or { id, label }.
+    return (skillsField?.selectedValues || [])
+      .map((value) =>
+        typeof value === 'string' ? value : value?.label ?? value?.id
+      )
+      .filter(Boolean);
+  } catch (error) {
+    console.error('getActiveBatchSkills: stored cohortData invalid', error);
+    return [];
+  }
+};
+
+/**
  * Returns true when the logged-in learner has an active batch.
  * Mirrors SCPUserTabScreen.refreshCohortData (including its 3-second re-check
  * while focused): re-fetches the cohort and falls back to the stored
