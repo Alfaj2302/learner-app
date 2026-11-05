@@ -22,6 +22,7 @@ const UnauthorizedScreen = () => {
     await deleteSavedItem('userId');
     await deleteSavedItem('cohortId');
     await deleteSavedItem('cohortData');
+    await deleteSavedItem('l2CoursesShownFor');
     await deleteSavedItem('weightedProgress');
     await deleteSavedItem('courseTrackData');
     await deleteSavedItem('profileData');

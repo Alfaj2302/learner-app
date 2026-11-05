@@ -50,7 +50,7 @@ const Tab = createBottomTabNavigator();
 const WalkthroughableView = walkthroughable(View); // Wrap Image component
 
 // `${userId}:${cohortId}` of the batch the learner was last sent to L2 Courses
-// for, so the redirect happens once per assigned batch.
+// for, so the redirect happens once per batch per login. Logout deletes it.
 const L2_COURSES_SHOWN_KEY = 'l2CoursesShownFor';
 
   const TabScreen = () => {
@@ -73,8 +73,8 @@ const L2_COURSES_SHOWN_KEY = 'l2CoursesShownFor';
   const navigation = useNavigation();
   const route = useRoute();
 
-  // When a batch is assigned, open L2 Courses directly — once per batch, so the
-  // learner can still move to other tabs afterwards.
+  // When a batch is assigned, and after each login with one, open L2 Courses
+  // directly — once, so the learner can still move to other tabs afterwards.
   useEffect(() => {
     if (userType !== 'youthnet' || !hasActiveBatch) {
       return undefined;
