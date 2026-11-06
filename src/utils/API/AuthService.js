@@ -881,6 +881,8 @@ export const assessmentListApi = async (params = {}) => {
         // new different type
         // undo this
         evaluationType: ['offline', 'online', 'ai'],
+        // Only assessments tagged with the learner's batch stream(s)
+        ...(params?.streams?.length && { stream: params.streams }),
       },
       sort_by: {
         lastUpdatedOn: 'desc',

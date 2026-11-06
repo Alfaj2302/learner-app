@@ -50,11 +50,19 @@ const Assessment = ({ header, background }) => {
     const cohort_id = await getDataFromStorage('cohortId');
     //console.log('########### cohort', cohort);
     let board = null;
+    let streams = [];
     // let state = null;
     console.log('cohort==>', JSON.stringify(cohort));
 
     try {
       board = cohort?.customField?.find((field) => field.label === 'BOARD');
+      // Stream(s) of the learner's assigned batch; used to fetch only that stream's assessments
+      const streamField = cohort?.customField?.find(
+        (field) => field.label === 'STREAM'
+      );
+      streams = Array.isArray(streamField?.selectedValues)
+        ? streamField.selectedValues.filter(Boolean)
+        : [];
       // state = cohort?.customField?.find((field) => field.label === 'STATES');
     } catch (e) {
       console.log('e', e);
@@ -73,6 +81,7 @@ const Assessment = ({ header, background }) => {
 
       const assessmentList = await assessmentListApi({
         boardName,
+        streams,
         // stateName,
         user_id,
       });
